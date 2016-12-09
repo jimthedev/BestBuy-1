@@ -37,7 +37,7 @@ export default class BestBuy extends Component {
   }
 
   getStoreList() {
-    axios.get(this.state.lastSearched)
+    axios.get(this.state.bbcall)
     .then((response) => {
       var newStoreList = response.data.data.slice(0);
       this.setState({

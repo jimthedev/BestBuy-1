@@ -18,10 +18,6 @@ export default class BestBuy extends Component {
   constructor(props) {
     super(props);
 
-    var dataSource = new ListView.DataSource(
-      {rowHasChanged: (r1, r2) => r1 !== r2}
-    )
-
     this.state = {
       stores: [],
       id: '',
@@ -45,9 +41,8 @@ export default class BestBuy extends Component {
   getStoreList() {
     axios.get(this.state.bbcall)
     .then((response) => {
-
       this.setState({
-        stores: response.data.data.slice(0);
+        stores: response.data.data.slice(0),
       })
     })
     .catch((error) => {
@@ -61,12 +56,12 @@ export default class BestBuy extends Component {
       rowHasChanged: (r1, r2) => {
         return r1 !== r2
       }
-    })
+    });
   }
 
   getStoreRows() {
-    var datas = this.getStoresDataSource()
-    return datas.cloneWithRows(this.state.stores)
+    var ds = this.getStoresDataSource()
+    return ds.cloneWithRows(this.state.stores)
   }
 
   render() {
@@ -74,7 +69,7 @@ export default class BestBuy extends Component {
       <View style={styles.container}>
       <ListView
           enableEmptySections={true}
-          dataSource={this.getStoreRows}
+          dataSource={this.getStoreRows()}
           renderRow={(store) => {
             console.log('rendered a row');
               return (

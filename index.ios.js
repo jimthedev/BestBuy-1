@@ -9,15 +9,21 @@ import {
   AppRegistry,
   StyleSheet,
   Text,
-  View
+  View,
+  ListView
 } from 'react-native';
 import axios from 'axios';
 
 export default class BestBuy extends Component {
   constructor(props) {
     super(props);
+
+    var dataSource = new ListView.DataSource(
+      {rowHasChanged: (r1, r2) => r1 !== r2}
+    )
+
     this.state = {
-      storeList: [],
+      stores: [],
       id: '',
       name: '',
       type: '',
@@ -28,7 +34,7 @@ export default class BestBuy extends Component {
       lat: '',
       long: '',
       hours: '',
-      bbcall: 'http://localhost:3030/stores'
+      bbcall: 'http://localhost:3030/stores',
     };
   }
 
@@ -39,9 +45,9 @@ export default class BestBuy extends Component {
   getStoreList() {
     axios.get(this.state.bbcall)
     .then((response) => {
-      var newStoreList = response.data.data.slice(0);
+
       this.setState({
-        storeList: newStoreList
+        stores: response.data.data.slice(0);
       })
     })
     .catch((error) => {
@@ -50,18 +56,39 @@ export default class BestBuy extends Component {
     });
   }
 
+  getStoresDataSource() {
+    return new ListView.DataSource({
+      rowHasChanged: (r1, r2) => {
+        return r1 !== r2
+      }
+    })
+  }
 
+  getStoreRows() {
+    var datas = this.getStoresDataSource()
+    return datas.cloneWithRows(this.state.stores)
+  }
 
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to an App!
-        </Text>
+      <ListView
+          enableEmptySections={true}
+          dataSource={this.getStoreRows}
+          renderRow={(store) => {
+            console.log('rendered a row');
+              return (
+                <Text>{store.name}</Text>
+              )
+          }
+        />
+        <Text>hi</Text>
       </View>
     );
   }
 }
+
+console.log(dataSource)
 
 const styles = StyleSheet.create({
   container: {

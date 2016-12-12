@@ -12,10 +12,21 @@ import {
   View,
   ListView,
   ScrollView,
+  TouchableHighlight
 } from 'react-native';
+import {
+  createRouter,
+  NavigationProvider,
+  StackNavigation
+} from '@exponent/ex-navigation';
 import axios from 'axios';
 
-export default class BestBuy extends Component {
+export class StoreList extends Component {
+  static route = {
+    navigationBar: {
+      title: 'Stores',
+    }
+  }
   constructor(props) {
     super(props);
 
@@ -64,27 +75,34 @@ export default class BestBuy extends Component {
     var ds = this.getStoresDataSource()
     return ds.cloneWithRows(this.state.stores)
   }
-
+  onStorePress(store, e) {
+    console.log(store);
+    this.props.navigator.push(Router.getRoute('store', {store}));
+  }
   render() {
     return (
       <ScrollView style={styles.container}>
-      <Text style={styles.welcome}>Welcome! You can find Best Buy stores at the following locations:</Text>
-      <ListView
-          style={styles.container}
-          enableEmptySections={true}
-          dataSource={this.getStoreRows()}
-          renderRow={(store) => {
-              return (
-                <View style={styles.list}>
-                <Text style={styles.listItem}>{store.name}</Text>
-                <Text>{store.address}</Text>
-                <Text>{store.city}, {store.state}</Text>
-                <Text>{store.hours}</Text>
-                </View>
-              );
-            }
-        }
-        />
+        <Text style={styles.welcome}>Welcome! You can find Best Buy stores at the following locations:</Text>
+        <ListView
+            style={styles.container}
+            enableEmptySections={true}
+            dataSource={this.getStoreRows()}
+            renderRow={(store) => {
+                return (
+                  <View style={styles.list}>
+                    <TouchableHighlight onPress={this.onStorePress.bind(this, store)}>
+                      <View>
+                        <Text style={styles.listItem}>{store.name}</Text>
+                        <Text>{store.address}</Text>
+                        <Text>{store.city}, {store.state}</Text>
+                        <Text>{store.hours}</Text>
+                      </View>
+                    </TouchableHighlight>
+                  </View>
+                );
+              }
+          }
+          />
       </ScrollView>
     );
   }
@@ -115,5 +133,40 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   }
 });
+
+class Store extends Component {
+  static route = {
+    navigationBar: {
+      title: (params) => {
+        return `${params.store.name}`;
+      }
+    }
+  }
+  render() {
+    const { store } = this.props.route.params;
+    return (
+      <View style={{marginTop:25}}>
+        <Text>{store.id}</Text>
+        <Text>{store.name}</Text>
+        {this.props.children}
+      </View>
+    );
+  }
+}
+
+const Router = createRouter(() => ({
+  home: () => StoreList,
+  store: () => Store
+}));
+
+export default class BestBuy extends Component {
+  render() {
+    return (
+      <NavigationProvider router={Router}>
+        <StackNavigation initialRoute={Router.getRoute('home')}></StackNavigation>
+      </NavigationProvider>
+    );
+  }
+}
 
 AppRegistry.registerComponent('BestBuy', () => BestBuy);

@@ -10,7 +10,8 @@ import {
   StyleSheet,
   Text,
   View,
-  ListView
+  ListView,
+  ScrollView,
 } from 'react-native';
 import axios from 'axios';
 
@@ -30,7 +31,7 @@ export default class BestBuy extends Component {
       lat: '',
       long: '',
       hours: '',
-      bbcall: 'http://localhost:3030/stores',
+      bbcall: 'http://localhost:3030/stores?$limit=25',
     };
   }
 
@@ -66,42 +67,53 @@ export default class BestBuy extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
+      <Text style={styles.welcome}>Welcome! You can find Best Buy stores at the following locations:</Text>
       <ListView
+          style={styles.container}
           enableEmptySections={true}
           dataSource={this.getStoreRows()}
           renderRow={(store) => {
-            console.log('rendered a row');
               return (
-                <Text>{store.name}</Text>
-              )
-          }
+                <View style={styles.list}>
+                <Text style={styles.listItem}>{store.name}</Text>
+                <Text>{store.address}</Text>
+                <Text>{store.city}, {store.state}</Text>
+                <Text>{store.hours}</Text>
+                </View>
+              );
+            }
+        }
         />
-        <Text>hi</Text>
-      </View>
+      </ScrollView>
     );
   }
 }
 
-console.log(dataSource)
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
   welcome: {
     fontSize: 20,
     textAlign: 'center',
     margin: 10,
+    marginTop: 25,
   },
   instructions: {
     textAlign: 'center',
     color: '#333333',
     marginBottom: 5,
   },
+  list: {
+    flex: 1,
+    height: 120,
+  },
+  listItem: {
+    marginTop: 10,
+    textAlign: 'left',
+  }
 });
 
 AppRegistry.registerComponent('BestBuy', () => BestBuy);
